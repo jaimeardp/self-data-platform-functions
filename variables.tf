@@ -18,7 +18,7 @@ variable "gcp_region" {
 variable "function_repo_name" {
   type        = string
   description = "The name of the Cloud Source Repository for the function code."
-  default     = "self-data-platform-functions"
+  default     = "jaimeardp/self-data-platform-functions"
 }
 
 variable "function_repo_branch" {
