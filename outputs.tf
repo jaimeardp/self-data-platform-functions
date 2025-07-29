@@ -14,7 +14,7 @@ output "cloud_function_uri" {
   value       = google_cloudfunctions2_function.landing_to_raw_loader.service_config[0].uri
 }
 
-output "function_service_account_email" {
-  description = "The email of the dedicated service account created for this function."
-  value       = google_service_account.function_sa.email
-}
+# output "function_service_account_email" {
+#   description = "The email of the dedicated service account created for this function."
+#   value       = google_service_account.function_sa.email
+# }
