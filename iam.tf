@@ -20,6 +20,16 @@ resource "google_project_iam_member" "eventarc_trigger_invoker" {
   member  = "serviceAccount:${data.terraform_remote_state.platform.outputs.data_platform_service_account_email_transformer_function}"
 }
 
+# FIXED: Grant the function's SA permissions to receive events from Eventarc.
+resource "google_project_iam_member" "eventarc_event_receiver" {
+  project = var.gcp_project_id
+  role    = "roles/eventarc.eventReceiver"
+  member  = "serviceAccount:${data.terraform_remote_state.platform.outputs.function_service_account_email}"
+
+  depends_on = [google_project_service.apis]
+}
+
+
 # Grant the function's SA permissions to read from the landing bucket.
 resource "google_storage_bucket_iam_member" "function_sa_can_read_from_landing_bucket" {
   bucket = data.terraform_remote_state.platform.outputs.landing_bucket_name
