@@ -29,7 +29,7 @@ resource "google_cloudfunctions2_function" "landing_to_raw_loader" {
     available_memory      = "512Mi"
     timeout_seconds       = 300
     # UPDATED: Use the locally created service account
-    service_account_email = google_service_account.function_sa.email
+    service_account_email = data.terraform_remote_state.platform.outputs.data_platform_service_account_email_transformer_function
     # The function now needs the name of the raw bucket
     environment_variables = {
       PROJECT_ID      = var.gcp_project_id
@@ -42,7 +42,7 @@ resource "google_cloudfunctions2_function" "landing_to_raw_loader" {
     event_type            = "google.cloud.storage.object.v1.finalized"
     retry_policy          = "RETRY_POLICY_RETRY"
     # UPDATED: Use the locally created service account
-    service_account_email = google_service_account.function_sa.email
+    service_account_email = data.terraform_remote_state.platform.outputs.data_platform_service_account_email_transformer_function
     event_filters {
       attribute = "bucket"
       # Get the landing bucket name from the platform's remote state
