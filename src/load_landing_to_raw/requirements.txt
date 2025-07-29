@@ -1,0 +1,13 @@
+# -----------------------------------------------------------------------------
+# requirements.txt
+#
+# This file should be placed in the 'csv-to-parquet-transformer' directory
+# of your function's source code repository.
+# -----------------------------------------------------------------------------
+functions-framework==3.*
+google-cloud-storage==2.*
+pandas==2.*
+# PyArrow is the engine used by pandas to write Parquet files
+pyarrow
+# GCSFS allows pandas to read directly from and write to GCS buckets
+gcsfs

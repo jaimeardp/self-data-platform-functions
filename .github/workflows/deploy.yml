@@ -1,0 +1,102 @@
+# .github/workflows/deploy.yml
+#
+# This GitHub Actions workflow automates the deployment of the WOM GCS-to-BQ
+# Cloud Function using Terraform.
+
+name: Deploy Cloud Function via Terraform
+
+# Controls when the action will run.
+on:
+  # Triggers the workflow on push events but only for the main branch
+  push:
+    branches:
+      - main
+
+  # Triggers the workflow on pull request events targeted at the main branch
+  pull_request:
+    branches:
+      - main
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This job runs the Terraform plan and apply commands
+  terraform:
+    name: "Terraform"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write" # Required for Workload Identity Federation
+
+    steps:
+      # 1. Checkout the repository code
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # 2. Authenticate to Google Cloud using Workload Identity Federation
+      #    This is the most secure method for CI/CD.
+      - id: "auth"
+        name: "Authenticate to Google Cloud"
+        uses: "google-github-actions/auth@v1"
+        with:
+          # You must configure this in your GCP project and GitHub repo settings.
+          # See: https://github.com/google-github-actions/auth#setting-up-workload-identity-federation
+          workload_identity_provider: "projects/YOUR_GCP_PROJECT_NUMBER/locations/global/workloadIdentityPools/YOUR_POOL_NAME/providers/YOUR_PROVIDER_NAME"
+          service_account: "terraform-deploy-sa@your-gcp-project-id-here.iam.gserviceaccount.com" # A dedicated SA for CI/CD
+
+      # 3. Setup Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0 # Use a specific version for consistency
+
+      # 4. Initialize Terraform
+      #    This step configures the backend to read the remote state.
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="bucket=your-terraform-state-bucket-name" \
+            -backend-config="prefix=functions/gcs-to-bq"
+        env:
+          # The GCP project ID is needed for the provider configuration
+          TF_VAR_gcp_project_id: "your-gcp-project-id-here"
+
+      # 5. Run Terraform Plan
+      #    A plan is always generated to preview changes.
+      - name: Terraform Plan
+        id: plan
+        run: |
+          terraform plan -no-color -input=false \
+            -var="gcp_project_id=your-gcp-project-id-here" \
+            -var="function_repo_name=wom-gcs-to-bq-function" \
+            -var="function_repo_branch=main"
+        continue-on-error: true # Allow the plan to fail without stopping the workflow on PRs
+
+      # 6. Add Plan to PR Comment (for Pull Requests)
+      #    This makes reviewing infrastructure changes easy.
+      - name: Post Terraform Plan to PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const output = `#### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            <details><summary>Show Plan</summary>
+            \`\`\`\n
+            ${{ steps.plan.outputs.stdout }}
+            \`\`\`
+            </details>`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      # 7. Terraform Apply (only for pushes to main)
+      #    This step applies the changes automatically after a PR is merged.
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.plan.outcome == 'success'
+        run: |
+          terraform apply -auto-approve -input=false \
+            -var="gcp_project_id=your-gcp-project-id-here" \
+            -var="function_repo_name=wom-gcs-to-bq-function" \
+            -var="function_repo_branch=main"
