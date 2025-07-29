@@ -26,3 +26,9 @@ variable "function_repo_branch" {
   description = "The branch name to deploy the function from."
   default     = "main"
 }
+
+variable "github_repository_name" {
+  type        = string
+  description = "The name of the GitHub repository for the function code."
+  default     = "self-data-platform-functions"
+}

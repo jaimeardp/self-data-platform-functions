@@ -38,7 +38,7 @@ resource "google_cloudfunctions2_function" "landing_to_raw_loader" {
         project_id  = var.gcp_project_id
         repo_name   = var.function_repo_name
         branch_name = var.function_repo_branch
-        dir         = "src/load_landing_to_raw/"
+        dir         = "./src/load_landing_to_raw/"
 
       }
     }
