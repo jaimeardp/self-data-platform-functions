@@ -11,7 +11,7 @@ resource "google_cloudfunctions2_function" "landing-to-raw-loader" {
 
   build_config {
     runtime     = "python311"
-    entry_point = "load_gcs_to_bq"
+    entry_point = "transform_csv_to_parquet"
     source {
       repo_source {
         project_id  = var.gcp_project_id
