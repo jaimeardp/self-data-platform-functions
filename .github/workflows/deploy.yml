@@ -41,6 +41,7 @@ jobs:
         with:
           # You must configure this in your GCP project and GitHub repo settings.
           # See: https://github.com/google-github-actions/auth#setting-up-workload-identity-federation
+          create_credentials_file: 'true'
           workload_identity_provider: "projects/${{ secrets.GCP_PROJECT_ID }}/locations/global/workloadIdentityPools/${{ vars.GCP_IDENTITY_POOL }}/providers/${{ vars.GCP_IDENTITY_PROVIDER }}"
           service_account: "${{ secrets.GCP_SERVICE_ACCOUNT_CICD }}" # A dedicated SA for CI/CD
 
