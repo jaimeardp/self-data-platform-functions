@@ -24,7 +24,7 @@ resource "google_project_iam_member" "eventarc_trigger_invoker" {
 resource "google_project_iam_member" "eventarc_event_receiver" {
   project = var.gcp_project_id
   role    = "roles/eventarc.eventReceiver"
-  member  = "serviceAccount:${data.terraform_remote_state.platform.outputs.function_service_account_email}"
+  member  = "serviceAccount:${data.terraform_remote_state.platform.outputs.data_platform_service_account_email_transformer_function}"
 
   depends_on = [google_project_service.apis]
 }

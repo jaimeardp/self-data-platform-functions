@@ -74,6 +74,7 @@ resource "google_cloudfunctions2_function" "landing_to_raw_loader" {
   depends_on = [
     # Depend on the IAM bindings to ensure they are created first
     google_project_iam_member.eventarc_trigger_invoker,
+    google_project_iam_member.eventarc_event_receiver, # <-- ADDED DEPENDENCY
     google_storage_bucket_iam_member.function_sa_can_write_to_raw_bucket,
     google_storage_bucket_iam_member.function_sa_can_read_from_landing_bucket,
   ]
