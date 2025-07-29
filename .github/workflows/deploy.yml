@@ -55,7 +55,9 @@ jobs:
       #    This step configures the backend to read the remote state.
       - name: Terraform Init
         run: |
-          terraform init
+          terraform init \
+            -backend-config="bucket=${{ vars.GCP_BUCKET_NAME }}" \
+            -backend-config="prefix=platform/gcs-transformer"
         env:
           # The GCP project ID is needed for the provider configuration
           TF_VAR_gcp_project_id: "${{ secrets.GCP_PROJECT_NAME }}"
