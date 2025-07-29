@@ -40,8 +40,8 @@ jobs:
         with:
           # You must configure this in your GCP project and GitHub repo settings.
           # See: https://github.com/google-github-actions/auth#setting-up-workload-identity-federation
-          workload_identity_provider: "projects/YOUR_GCP_PROJECT_NUMBER/locations/global/workloadIdentityPools/YOUR_POOL_NAME/providers/YOUR_PROVIDER_NAME"
-          service_account: "terraform-deploy-sa@your-gcp-project-id-here.iam.gserviceaccount.com" # A dedicated SA for CI/CD
+          workload_identity_provider: "projects/${{ secrets.GCP_PROJECT_ID }}/locations/global/workloadIdentityPools/${{ vars.GCP_IDENTITY_POOL }}/providers/${{ vars.GCP_IDENTITY_PROVIDER }}"
+          service_account: "${{ secrets.GCP_SERVICE_ACCOUNT_CICD }}" # A dedicated SA for CI/CD
 
       # 3. Setup Terraform
       - name: Setup Terraform
@@ -54,11 +54,11 @@ jobs:
       - name: Terraform Init
         run: |
           terraform init \
-            -backend-config="bucket=your-terraform-state-bucket-name" \
+            -backend-config="bucket=${{ secrets.GCP_BUCKET_NAME }}" \
             -backend-config="prefix=functions/gcs-to-bq"
         env:
           # The GCP project ID is needed for the provider configuration
-          TF_VAR_gcp_project_id: "your-gcp-project-id-here"
+          TF_VAR_gcp_project_id: "${{ secrets.GCP_PROJECT_NAME }}"
 
       # 5. Run Terraform Plan
       #    A plan is always generated to preview changes.
@@ -66,7 +66,7 @@ jobs:
         id: plan
         run: |
           terraform plan -no-color -input=false \
-            -var="gcp_project_id=your-gcp-project-id-here" \
+            -var="gcp_project_id=${{ secrets.GCP_PROJECT_NAME }}" \
             -var="function_repo_name=wom-gcs-to-bq-function" \
             -var="function_repo_branch=main"
         continue-on-error: true # Allow the plan to fail without stopping the workflow on PRs
@@ -97,6 +97,6 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.plan.outcome == 'success'
         run: |
           terraform apply -auto-approve -input=false \
-            -var="gcp_project_id=your-gcp-project-id-here" \
+            -var="gcp_project_id=${{ secrets.GCP_PROJECT_NAME }}" \
             -var="function_repo_name=wom-gcs-to-bq-function" \
             -var="function_repo_branch=main"
