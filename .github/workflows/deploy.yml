@@ -23,6 +23,7 @@ jobs:
   terraform:
     name: "Terraform"
     runs-on: ubuntu-latest
+    environment: DEV
     permissions:
       contents: "read"
       id-token: "write" # Required for Workload Identity Federation
