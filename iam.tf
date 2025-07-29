@@ -30,7 +30,7 @@ resource "google_storage_bucket_iam_member" "function_sa_can_read_from_landing_b
 
 # Grant the function's SA permissions to write to the new raw Parquet bucket.
 resource "google_storage_bucket_iam_member" "function_sa_can_write_to_raw_bucket" {
-  bucket = data.terraform_remote_state.platform.outputs.raw_parquet_bucket_name
+  bucket = data.terraform_remote_state.platform.outputs.raw_bucket_name
   role   = "roles/storage.objectAdmin" # Needs full control to write/overwrite
   # UPDATED: Use the locally created service account
   member = "serviceAccount:${google_service_account.function_sa.email}"
