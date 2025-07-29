@@ -4,26 +4,26 @@
 # This file defines the Cloud Function and its specific IAM bindings.
 # -----------------------------------------------------------------------------
 
-locals {
-  # A list of all APIs required by the resources in this function repository.
-  required_apis = [
-    "iam.googleapis.com",
-    "cloudfunctions.googleapis.com",
-    "cloudbuild.googleapis.com",
-    "eventarc.googleapis.com",
-    "run.googleapis.com",
-    "storage.googleapis.com",
-    "artifactregistry.googleapis.com",
-  ]
-}
+# locals {
+#   # A list of all APIs required by the resources in this function repository.
+#   required_apis = [
+#     "iam.googleapis.com",
+#     "cloudfunctions.googleapis.com",
+#     "cloudbuild.googleapis.com",
+#     "eventarc.googleapis.com",
+#     "run.googleapis.com",
+#     "storage.googleapis.com",
+#     "artifactregistry.googleapis.com",
+#   ]
+# }
 
-resource "google_project_service" "apis" {
-  project                    = var.gcp_project_id
-  for_each                   = toset(local.required_apis)
-  service                    = each.value
-  disable_on_destroy         = false # Keep APIs enabled even if Terraform destroys resources
-  disable_dependent_services = true
-}
+# resource "google_project_service" "apis" {
+#   project                    = var.gcp_project_id
+#   for_each                   = toset(local.required_apis)
+#   service                    = each.value
+#   disable_on_destroy         = false # Keep APIs enabled even if Terraform destroys resources
+#   disable_dependent_services = true
+# }
 
 # Define the Cloud Function resource.
 resource "google_cloudfunctions2_function" "landing_to_raw_loader" {
