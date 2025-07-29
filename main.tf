@@ -5,7 +5,7 @@
 # -----------------------------------------------------------------------------
 
 # Define the Cloud Function resource.
-resource "google_cloudfunctions2_function" "landing-to-raw-loader" {
+resource "google_cloudfunctions2_function" "landing_to_raw_loader" {
   name     = "self-landing-to-raw-loader-function"
   location = var.gcp_region
 
