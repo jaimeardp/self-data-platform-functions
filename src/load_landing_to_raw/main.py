@@ -56,7 +56,7 @@ def transform_csv_to_parquet(cloud_event):
     source_uri = f"gs://{source_bucket_name}/{source_file_name}"
     
     # Create the Hive-partitioned path.
-    # e.g., year=2023/month=10/day=27/hour=14/
+    # e.g., year=2024/month=10/day=27/hour=14/
     partition_path = f"year={year}/month={month}/day={day}/hour={hour}"
     
     # The output filename can be the same as the source, but with a .parquet extension.

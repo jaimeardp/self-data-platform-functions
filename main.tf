@@ -34,7 +34,7 @@ data "archive_file" "function_source" {
 
 # 2. Upload the zipped source code to the GCS bucket.
 resource "google_storage_bucket_object" "function_source_object" {
-  name   = "source.zip"
+  name   = "source-${data.archive_file.function_source.output_sha256}.zip"
   bucket = data.terraform_remote_state.platform.outputs.data_plataform_bucket_name_for_function_source
   source = data.archive_file.function_source.output_path
 }
