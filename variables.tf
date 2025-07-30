@@ -32,3 +32,10 @@ variable "github_repository_name" {
   description = "The name of the GitHub repository for the function code."
   default     = "self-data-platform-functions"
 }
+
+variable "function_source_dir" {
+  type        = string
+  description = "The subdirectory within the repository containing the function's source code."
+  # FIXED: The default path now matches your project structure.
+  default     = "src/load_landing_to_raw"
+}

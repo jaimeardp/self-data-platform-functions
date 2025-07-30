@@ -25,6 +25,21 @@ resource "google_project_service" "apis" {
   disable_dependent_services = true
 }
 
+# 1. Create a zip archive of the function's source code from the local 'source' directory.
+data "archive_file" "function_source" {
+  type        = "zip"
+  source_dir  = "${path.module}/${var.function_source_dir}"
+  output_path = "/tmp/function_source.zip"
+}
+
+# 2. Upload the zipped source code to the GCS bucket.
+resource "google_storage_bucket_object" "function_source_object" {
+  name   = "source.zip"
+  bucket = data.terraform_remote_state.platform.outputs.data_plataform_bucket_name_for_function_source
+  source = data.archive_file.function_source.output_path
+}
+
+
 # Define the Cloud Function resource.
 resource "google_cloudfunctions2_function" "landing_to_raw_loader" {
   name     = "self-landing-to-raw-loader-function"
@@ -34,12 +49,9 @@ resource "google_cloudfunctions2_function" "landing_to_raw_loader" {
     runtime     = "python311"
     entry_point = "transform_csv_to_parquet"
     source {
-      repo_source {
-        project_id  = var.gcp_project_id
-        repo_name   = var.function_repo_name
-        branch_name = var.function_repo_branch
-        dir         = "src/load_landing_to_raw/"
-
+      storage_source {
+        bucket = data.terraform_remote_state.platform.outputs.data_plataform_bucket_name_for_function_source
+        object = google_storage_bucket_object.function_source_object.name
       }
     }
   }
