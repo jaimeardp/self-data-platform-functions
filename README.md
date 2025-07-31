@@ -4,7 +4,7 @@ Este repositorio contiene el código fuente (Python) y la infraestructura como c
 
 Este proyecto utiliza un único conjunto de archivos de Terraform para empaquetar y desplegar una función específica. El despliegue se activa automáticamente cuando se detectan cambios en el código fuente de la función a través de un **hash de contenido**, asegurando que solo se realicen actualizaciones cuando sea necesario para máxima eficiencia.
 
-## Arquitectura y Filosofía
+## Arquitectura
 
 La gestión de la infraestructura está dividida en dos repositorios para seguir el principio de separación de responsabilidades, lo cual es una práctica recomendada para equipos de datos modernos.
 
@@ -52,15 +52,19 @@ Para que el pipeline de despliegue (`deploy.yml`) funcione, es necesario configu
 
 ### 1. Secretos del Entorno (`secrets`)
 
+![alt text](image.png)
+
 Los secretos son para información sensible que no debe ser visible en los logs.
 
 | Nombre del Secreto              | Descripción                                                                 | Cómo Obtener el Valor                                                                                             |
 | ------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `GCP_PROJECT_ID`                | El ID de tu proyecto de Google Cloud (ej. `oceanic-student-465214-j2`).       | Es el ID de tu proyecto de GCP.                                                                                   |
+| `GCP_PROJECT_ID`                | El ID de tu proyecto de Google Cloud (ej. `you-project-id`).       | Es el ID de tu proyecto de GCP.                                                                                   |
 | `GCP_PROJECT_NAME`              | El ID de tu proyecto de Google Cloud (usado en los `-var` de Terraform).      | Usualmente es el mismo valor que `GCP_PROJECT_ID`.                                                                |
 | `GCP_SERVICE_ACCOUNT_CICD`      | El email de la cuenta de servicio que usará el CI/CD para desplegar.          | Ejecuta `terraform output -raw cicd_service_account_email` en tu repositorio de **plataforma**.                     |
 
 ### 2. Variables del Entorno (`vars`)
+
+![alt text](image-1.png)
 
 Las variables son para configuración no sensible.
 
@@ -78,11 +82,17 @@ Si necesitas desplegar la función manualmente desde tu máquina local, sigue es
 
 ### Prerrequisitos (Configuración Única)
 
-1.  **Crear el Bucket de Backend:** Terraform necesita un bucket en GCS para almacenar su archivo de estado. Este bucket debe ser creado manualmente una sola vez.
+1.  **Crear el Bucket de Backend (Paso deprecado, creado en las indicaciones de el repositorio self-data-platform ):** Terraform necesita un bucket en GCS para almacenar su archivo de estado. Este bucket debe ser creado manualmente una sola vez.
     ```bash
     # Reemplaza 'tu-gcp-project-id-aqui' con tu Project ID
     gcloud storage buckets create gs://self-tfstate-bkt --project=tu-gcp-project-id-aqui --location=us-central1 --uniform-bucket-level-access
     ```
+
+Si bien este paso es deprecado, es importante mencionar que ambos repositorios deben tener el mismo bucket de estado para evitar inconsistencias, pero tienen distinto prefix en el nombre del bucket.
+
+![alt text](image-2.png)
+
+
 2.  **Autenticación Local:** Asegúrate de que tu SDK de gcloud esté autenticado con una cuenta que tenga los permisos necesarios para desplegar.
     ```bash
     gcloud auth application-default login
@@ -108,3 +118,22 @@ Una vez completada la configuración, el despliegue es estándar.
     terraform plan
     terraform apply
     
+
+### Alternativa: Usar Estado Local (Sin Backend Remoto)
+
+Si estás trabajando solo en un entorno de prueba y no quieres configurar un bucket de backend remoto, puedes usar el estado local de Terraform.
+
+**Advertencia:** Este método no es recomendado para trabajo en equipo o entornos de producción, ya que el estado no se comparte ni se bloquea, lo que puede llevar a conflictos y corrupción del estado.
+
+1.  **Eliminar la Configuración del Backend:** Elimina o renombra el archivo `backend.tf`.
+2.  **Actualizar `.gitignore`:** Es **crucial** que no subas tu archivo de estado local a Git. Añade las siguientes líneas a tu archivo `.gitignore`:
+    ```
+    # Terraform local state files
+    terraform.tfstate
+    terraform.tfstate.backup
+    ```
+3.  **Inicializar Terraform:** Ahora, cuando ejecutes `init`, Terraform no te preguntará por la configuración del backend y creará un archivo `terraform.tfstate` en tu directorio local.
+    ```bash
+    terraform init
+    ```
+4.  **Continuar con el Despliegue:** Los comandos `terraform plan` y `terraform apply` funcionarán de la misma manera, pero leerán y escribirán en tu archivo de estado local.
