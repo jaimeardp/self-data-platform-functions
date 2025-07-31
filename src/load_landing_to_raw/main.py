@@ -1,8 +1,5 @@
 # src/csv-to-parquet-transformer/main.py
-#
-# REFACTORED: This version of the function writes the output Parquet file
-# to a Hive-partitioned directory structure based on the event timestamp.
-# -----------------------------------------------------------------------------
+
 import os
 import functions_framework
 import pandas as pd
@@ -38,15 +35,9 @@ def transform_csv_to_parquet(cloud_event):
     # The timestamp is in RFC 3339 format (e.g., '2023-10-27T14:30:00.123Z').
     event_timestamp_str = data["timeCreated"]
     
-    # Convert the string to a timezone-aware datetime object (it's in UTC/Zulu time).
     event_timestamp = datetime.fromisoformat(event_timestamp_str.replace('Z', '+00:00'))
 
-    # You can optionally convert to a local timezone if your business logic requires it.
-    # For example, to convert to Peru time (PET):
-    # peru_tz = pytz.timezone('America/Lima')
-    # event_timestamp = event_timestamp.astimezone(peru_tz)
 
-    # Extract the date and time components for the partition path.
     year = event_timestamp.strftime('%Y')
     month = event_timestamp.strftime('%m')
     day = event_timestamp.strftime('%d')

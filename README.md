@@ -60,7 +60,7 @@ Los secretos son para información sensible que no debe ser visible en los logs.
 | ------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `GCP_PROJECT_ID`                | El ID de tu proyecto de Google Cloud (ej. `you-project-id`).       | Es el ID de tu proyecto de GCP.                                                                                   |
 | `GCP_PROJECT_NAME`              | El ID de tu proyecto de Google Cloud (usado en los `-var` de Terraform).      | Usualmente es el mismo valor que `GCP_PROJECT_ID`.                                                                |
-| `GCP_SERVICE_ACCOUNT_CICD`      | El email de la cuenta de servicio que usará el CI/CD para desplegar.          | Ejecuta `terraform output -raw cicd_service_account_email` en tu repositorio de **plataforma**.                     |
+| `GCP_SERVICE_ACCOUNT_CICD`      | El email de la cuenta de servicio que usará el CI/CD para desplegar.          | Ejecuta `terraform output -raw cicd_service_account_email` en tu repositorio de **plataforma** (github_actions_sa lo encuentra en terraform o su email va ser de este formato github-actions-cicd@<your-project-id>.iam.gserviceaccount.com).                     |
 
 ### 2. Variables del Entorno (`vars`)
 
