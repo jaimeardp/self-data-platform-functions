@@ -55,7 +55,7 @@ def transform_csv_to_parquet(cloud_event):
     
     destination_uri = f"gs://{destination_bucket_name}/{partition_path}/{destination_file_name}"
 
-    print(f"Processing file: {source_uri}")
+    print(f"Processing file source: {source_uri}")
     print(f"Destination: {destination_uri}")
 
     try:
